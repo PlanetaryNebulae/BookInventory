@@ -1,8 +1,17 @@
 package com.example.android.bookinventory;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,38 +21,56 @@ import android.widget.Toast;
 import com.example.android.bookinventory.data.BookContract.BookEntry;
 import com.example.android.bookinventory.data.BookDbHelper;
 
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private EditText bProductNameEditText;
+    //Identifier for book data loader.
+    private static final int EXISTING_BOOK_LOADER = 0;
 
-    private EditText bProductPriceEditText;
+    private Uri mCurrentBookUri;
 
-    private EditText bQuantityEditText;
+    private EditText mProductNameEditText;
 
-    private EditText bSupplierNameEditText;
+    private EditText mProductPriceEditText;
 
-    private EditText bSupplierNumberEditText;
+    private EditText mQuantityEditText;
+
+    private EditText mSupplierNameEditText;
+
+    private EditText mSupplierNumberEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
-        bProductNameEditText = (EditText) findViewById(R.id.product_name);
-        bProductPriceEditText = (EditText) findViewById(R.id.product_price);
-        bQuantityEditText = (EditText) findViewById(R.id.quantity_default);
-        bSupplierNameEditText = (EditText) findViewById(R.id.supplier_name);
-        bSupplierNumberEditText = (EditText) findViewById(R.id.supplier_phone_number);
+        Intent intent = getIntent();
+        mCurrentBookUri = intent.getData();
+
+        if (mCurrentBookUri == null) {
+            setTitle(R.string.editor_activity_new_book);
+
+            invalidateOptionsMenu();
+        } else {
+            setTitle(getString(R.string.editor_activity_existing_book));
+
+            getLoaderManager().initLoader(EXISTING_BOOK_LOADER, null, this);
+        }
+
+        mProductNameEditText = (EditText) findViewById(R.id.edit_product_name);
+        mProductPriceEditText = (EditText) findViewById(R.id.edit_product_price);
+        mQuantityEditText = (EditText) findViewById(R.id.edit_quantity_default);
+        mSupplierNameEditText = (EditText) findViewById(R.id.edit_supplier_name);
+        mSupplierNumberEditText = (EditText) findViewById(R.id.edit_supplier_phone_number);
     }
 
     private void insertBook() {
 
-        String productNameString = bProductNameEditText.getText().toString().trim();
-        String productPriceString = bProductPriceEditText.getText().toString().trim();
-        String quantityString = bQuantityEditText.getText().toString().trim();
+        String productNameString = mProductNameEditText.getText().toString().trim();
+        String productPriceString = mProductPriceEditText.getText().toString().trim();
+        String quantityString = mQuantityEditText.getText().toString().trim();
         int quantity = Integer.parseInt(quantityString);
-        String supplierNameString = bSupplierNameEditText.getText().toString().trim();
-        String supplierNumberString = bSupplierNumberEditText.getText().toString().trim();
+        String supplierNameString = mSupplierNameEditText.getText().toString().trim();
+        String supplierNumberString = mSupplierNumberEditText.getText().toString().trim();
 
         BookDbHelper bDbHelper = new BookDbHelper(this);
         SQLiteDatabase db = bDbHelper.getWritableDatabase();
@@ -82,5 +109,35 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
+        String[] projection = {
+                BaseColumns._ID,
+                BookEntry.COLUMN_PRODUCT_NAME,
+                BookEntry.COLUMN_PRODUCT_PRICE,
+                BookEntry.COLUMN_PRODUCT_QUANTITY,
+                BookEntry.COLUMN_SUPPLIER_NAME,
+                BookEntry.COLUMN_SUPPLIER_NUMBER
+        };
+
+        return new CursorLoader(this,
+                mCurrentBookUri,
+                projection,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
     }
 }

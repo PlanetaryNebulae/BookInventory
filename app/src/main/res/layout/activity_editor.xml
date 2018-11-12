@@ -8,7 +8,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/product_name"
+        android:id="@+id/edit_product_name"
         android:hint="@string/product_name"/>
 
     <LinearLayout
@@ -25,7 +25,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/product_price"
+            android:id="@+id/edit_product_price"
             android:hint="@string/product_price"/>
     </LinearLayout>
 
@@ -43,7 +43,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/quantity_default"
+            android:id="@+id/edit_quantity_default"
             android:hint="@string/quantity_default"/>
 
     </LinearLayout>
@@ -51,12 +51,12 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/supplier_name"
+        android:id="@+id/edit_supplier_name"
         android:hint="@string/supplier_name"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/supplier_phone_number"
+        android:id="@+id/edit_supplier_phone_number"
         android:hint="@string/supplier_phone_number"/>
 </LinearLayout>

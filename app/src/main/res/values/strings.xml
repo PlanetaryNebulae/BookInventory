@@ -9,9 +9,16 @@
     <string name="supplier_name">Supplier</string>
     <string name="supplier_phone_number">Supplier Phone Number</string>
 
+    <string name="empty">Try adding a book name, price, quantity,\nsupplier name, and supplier phone number.</string>
+
     <string name="book_table_has">The book table has </string>
     <string name="books" > books.</string>
 
     <string name="save">Save</string>
-    <string name="delete">Delete</string>
+    <string name="delete">Delete Item</string>
+    <string name="delete_inventory">Delete Entire Inventory</string>
+    <string name="insert_dummy_data">Insert Dummy Data</string>
+
+    <string name="editor_activity_new_book">Add a book</string>
+    <string name="editor_activity_existing_book">Edit book</string>
 </resources>

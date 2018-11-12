@@ -1,21 +1,36 @@
 package com.example.android.bookinventory;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.example.android.bookinventory.data.BookContract.BookEntry;
 import com.example.android.bookinventory.data.BookDbHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private BookDbHelper bDbHelper;
+    //Loader id.
+    private static final int BOOK_LOADER = 0;
+
+    BookCursorAdapter mCursorAdapter;
+
+    private BookDbHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,18 +47,69 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        bDbHelper = new BookDbHelper(this);
-        displayDatabaseInfo();
+        ListView bookListView = (ListView) findViewById(R.id.list);
+
+        View emptyView = findViewById(R.id.empty_view);
+        bookListView.setEmptyView(emptyView);
+
+        mCursorAdapter = new BookCursorAdapter(this, null);
+        bookListView.setAdapter(mCursorAdapter);
+
+        bookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+
+                Uri currentBookUri = ContentUris.withAppendedId(BookEntry.CONTENT_URI, id);
+
+                intent.setData(currentBookUri);
+
+                startActivity(intent);
+            }
+        });
+
+        getSupportLoaderManager().initLoader(BOOK_LOADER, null, this);
+    }
+
+    private void insertBook() {
+
+        ContentValues values = new ContentValues();
+
+        values.put(BookEntry.COLUMN_PRODUCT_NAME, "Ender's Game");
+        values.put(BookEntry.COLUMN_PRODUCT_PRICE, "8.55");
+        values.put(BookEntry.COLUMN_PRODUCT_QUANTITY, 10);
+        values.put(BookEntry.COLUMN_SUPPLIER_NAME, "Barnes & Noble");
+        values.put(BookEntry.COLUMN_SUPPLIER_NUMBER, "8882593366");
+
+        Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI, values);
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        displayDatabaseInfo();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Adds the menu items to the main menu.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
-    private void displayDatabaseInfo() {
-        SQLiteDatabase db = bDbHelper.getReadableDatabase();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // User clicked on a menu option in the app bar overflow menu
+        switch (item.getItemId()) {
+            // Respond to a click on the "Insert dummy data" menu option
+            case R.id.action_insert_dummy_data:
+                insertBook();
+                return true;
+            // Respond to a click on the "Delete all entries" menu option
+            case R.id.action_delete_inventory:
+                //TODO: showDeleteConfirmationDialog();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
 
         String[] projection = {
                 BaseColumns._ID,
@@ -51,38 +117,24 @@ public class MainActivity extends AppCompatActivity {
                 BookEntry.COLUMN_PRODUCT_PRICE,
                 BookEntry.COLUMN_PRODUCT_QUANTITY,
                 BookEntry.COLUMN_SUPPLIER_NAME,
-                BookEntry.COLUMN_SUPPLIER_NUMBER
-        };
+                BookEntry.COLUMN_SUPPLIER_NUMBER};
 
-        Cursor cursor = db.query(BookEntry.TABLE_NAME, projection,
-                null, null, null, null, null);
+        return new CursorLoader(this,
+                BookEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null);
 
-        TextView displayView = (TextView) findViewById(R.id.book_textview);
+    }
 
-        try {
-            displayView.setText(R.string.book_table_has + cursor.getCount() + R.string.books + "\n");
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        mCursorAdapter.swapCursor(data);
+    }
 
-            int idColumnIndex = cursor.getColumnIndex(BookEntry._ID);
-            int productNameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_PRODUCT_NAME);
-            int productPriceColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_PRODUCT_PRICE);
-            int quantityColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_PRODUCT_QUANTITY);
-            int supplierNameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_NAME);
-            int supplierNumberColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_NUMBER);
-
-            while (cursor.moveToNext()) {
-                int currentId = cursor.getInt(idColumnIndex);
-                String currentProductName = cursor.getString(productNameColumnIndex);
-                String currentProductPrice = cursor.getString(productPriceColumnIndex);
-                int currentQuantity = cursor.getInt(quantityColumnIndex);
-                String currentSupplierName = cursor.getString(supplierNameColumnIndex);
-                String currentSupplierNumber = cursor.getString(supplierNumberColumnIndex);
-
-                displayView.append(currentId + "\n" + currentProductName + "\n"
-                        + currentProductPrice + "\n" + currentQuantity + "\n"
-                        + currentSupplierName + "\n" + currentSupplierNumber + "\n");
-            }
-        } finally {
-            cursor.close();
-        }
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        mCursorAdapter.swapCursor(null);
     }
 }
