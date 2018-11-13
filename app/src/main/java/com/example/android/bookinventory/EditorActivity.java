@@ -1,25 +1,29 @@
 package com.example.android.bookinventory;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.android.bookinventory.data.BookContract.BookEntry;
-import com.example.android.bookinventory.data.BookDbHelper;
 
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -37,6 +41,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mSupplierNameEditText;
 
     private EditText mSupplierNumberEditText;
+
+    private boolean mBookHasChanged = false;
+    //An onTouchListener that listens for touches on a view.
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            mBookHasChanged = true;
+            return false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,35 +75,63 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mQuantityEditText = (EditText) findViewById(R.id.edit_quantity_default);
         mSupplierNameEditText = (EditText) findViewById(R.id.edit_supplier_name);
         mSupplierNumberEditText = (EditText) findViewById(R.id.edit_supplier_phone_number);
+
+        mProductNameEditText.setOnTouchListener(mTouchListener);
+        mProductPriceEditText.setOnTouchListener(mTouchListener);
+        mQuantityEditText.setOnTouchListener(mTouchListener);
+        mSupplierNameEditText.setOnTouchListener(mTouchListener);
+        mSupplierNumberEditText.setOnTouchListener(mTouchListener);
     }
 
-    private void insertBook() {
-
+    private void saveBook() {
         String productNameString = mProductNameEditText.getText().toString().trim();
         String productPriceString = mProductPriceEditText.getText().toString().trim();
         String quantityString = mQuantityEditText.getText().toString().trim();
-        int quantity = Integer.parseInt(quantityString);
         String supplierNameString = mSupplierNameEditText.getText().toString().trim();
         String supplierNumberString = mSupplierNumberEditText.getText().toString().trim();
 
-        BookDbHelper bDbHelper = new BookDbHelper(this);
-        SQLiteDatabase db = bDbHelper.getWritableDatabase();
+        //If all pet data is null, return without saving to database.
+        if (mCurrentBookUri == null &&
+                TextUtils.isEmpty(productNameString) && TextUtils.isEmpty(productPriceString) &&
+                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(supplierNameString) &&
+                TextUtils.isEmpty(supplierNumberString)) {
+            return;
+        }
 
         ContentValues values = new ContentValues();
         values.put(BookEntry.COLUMN_PRODUCT_NAME, productNameString);
         values.put(BookEntry.COLUMN_PRODUCT_PRICE, productPriceString);
+        //If quantity is not provided by user, use 0 by default.
+        int quantity = 0;
+        if (!TextUtils.isEmpty(quantityString)) {
+            quantity = Integer.parseInt(quantityString);
+        }
         values.put(BookEntry.COLUMN_PRODUCT_QUANTITY, quantity);
         values.put(BookEntry.COLUMN_SUPPLIER_NAME, supplierNameString);
         values.put(BookEntry.COLUMN_SUPPLIER_NUMBER, supplierNumberString);
 
-        long newRowId = db.insert(BookEntry.TABLE_NAME, null, values);
+        if (mCurrentBookUri == null) {
+            Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI, values);
 
-        if (newRowId == -1) {
-            Toast.makeText(this, "Error saving book.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.editor_insert_product_failed), Toast.LENGTH_SHORT).show();
+
+            if (newUri == null) {
+                Toast.makeText(this, getString(R.string.editor_insert_product_failed), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.editor_insert_product_successful), Toast.LENGTH_SHORT).show();
+            }
         } else {
-            Toast.makeText(this, "Book saved with id: " + newRowId, Toast.LENGTH_SHORT).show();
+            int rowsAffected = getContentResolver().update(mCurrentBookUri, values, null, null);
+
+            if (rowsAffected == 0) {
+                Toast.makeText(this, getString(R.string.editor_update_product_failed), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.editor_update_product_successful), Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -101,14 +143,50 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_save:
-                insertBook();
+                saveBook();
                 finish();
                 return true;
 
             case R.id.action_delete:
+                showDeleteConfirmationDialog();
+                return true;
+            // Respond to a click on the "Up" arrow button in the app bar
+            case android.R.id.home:
+
+                if (!mBookHasChanged) {
+                    NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    return true;
+                }
+
+                DialogInterface.OnClickListener discardButtonClickListener =
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                            }
+                        };
+                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        //If the pet hasn't changed, continue with the back button press.
+        if (!mBookHasChanged) {
+            super.onBackPressed();
+            return;
+        }
+        DialogInterface.OnClickListener discardButtonClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        //If the user clicks the discard button, closes the current activity.
+                        finish();
+                    }
+                };
+        showUnsavedChangesDialog(discardButtonClickListener);
     }
 
     @NonNull
@@ -134,10 +212,94 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 
+        // Bail early if the cursor is null or if there's less than 1 row in the cursor
+        if (cursor == null || cursor.getCount() < 1) {
+            return;
+        }
+        if (cursor.moveToFirst()) {
+
+            int productNameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_PRODUCT_NAME);
+            int priceColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_PRODUCT_PRICE);
+            int quantityColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_PRODUCT_QUANTITY);
+            int supplierNameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_NAME);
+            int supplierNumberColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_NUMBER);
+
+            // Extracts value from the Cursor for given column index
+            String productName = cursor.getString(productNameColumnIndex);
+            String price = cursor.getString(priceColumnIndex);
+            int quantity = cursor.getInt(quantityColumnIndex);
+            String supplierName = cursor.getString(supplierNameColumnIndex);
+            String supplierNumber = cursor.getString(supplierNumberColumnIndex);
+
+            // Update the views on the screen with the values from the database
+            mProductNameEditText.setText(productName);
+            mProductPriceEditText.setText(price);
+            mQuantityEditText.setText(Integer.toString(quantity));
+            mSupplierNameEditText.setText(supplierName);
+            mSupplierNumberEditText.setText(supplierNumber);
+        }
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        // If the loader is invalidated, clear out all the data from the input fields.
+        mProductNameEditText.setText("");
+        mProductPriceEditText.setText("");
+        mQuantityEditText.setText("");
+        mSupplierNameEditText.setText("");
+        mSupplierNumberEditText.setText("");
+    }
 
+    private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.unsaved_changes_dialog_msg);
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void showDeleteConfirmationDialog() {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the pet.
+                deleteBook();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void deleteBook() {
+        if (mCurrentBookUri != null) {
+            int rowsDeleted = getContentResolver().delete(mCurrentBookUri, null, null);
+
+            if (rowsDeleted == 0) {
+                Toast.makeText(this, getString(R.string.editor_delete_book_failed), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.editor_delete_book_successful), Toast.LENGTH_SHORT).show();
+            }
+        }
+        finish();
     }
 }

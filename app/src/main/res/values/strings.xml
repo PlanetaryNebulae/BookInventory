@@ -16,9 +16,28 @@
 
     <string name="save">Save</string>
     <string name="delete">Delete Item</string>
+    <string name="delete_all">Delete Items</string>
     <string name="delete_inventory">Delete Entire Inventory</string>
     <string name="insert_dummy_data">Insert Dummy Data</string>
 
     <string name="editor_activity_new_book">Add a book</string>
     <string name="editor_activity_existing_book">Edit book</string>
+
+    <string name="editor_insert_product_successful">Product saved</string>
+    <string name="editor_insert_product_failed">Error with saving product</string>
+
+    <string name="editor_update_product_successful">Product updated</string>
+    <string name="editor_update_product_failed">Error with updating product</string>
+
+    <string name="unsaved_changes_dialog_msg">Discard your changes and quit editing?</string>\
+    <string name="discard">Discard</string>
+    <string name="keep_editing">Keep Editing</string>
+
+    <string name="editor_delete_book_successful">Product deleted</string>
+    <string name="editor_delete_book_failed">Error with deleting product</string>
+    <string name="delete_dialog_msg">Delete this product?</string>
+    <string name="delete_all_dialog_msg">Delete entire inventory?</string>
+    <string name="delete_books">Delete</string>
+    <string name="cancel">Cancel</string>
+
 </resources>
