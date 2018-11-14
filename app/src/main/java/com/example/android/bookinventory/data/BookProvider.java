@@ -6,11 +6,13 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 
+import com.example.android.bookinventory.R;
 import com.example.android.bookinventory.data.BookContract.BookEntry;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 public class BookProvider extends ContentProvider {
 
@@ -82,27 +84,27 @@ public class BookProvider extends ContentProvider {
 
         String productName = values.getAsString(BookEntry.COLUMN_PRODUCT_NAME);
         if (productName == null || productName.isEmpty()) {
-            throw new IllegalArgumentException("Product requires a name");
+            Toast.makeText(getContext(), R.string.valid_product_name, Toast.LENGTH_SHORT).show();
         }
 
         String productPrice = values.getAsString(BookEntry.COLUMN_PRODUCT_PRICE);
         if (productPrice == null || productPrice.isEmpty()) {
-            throw new IllegalArgumentException("Product requires valid price");
+            Toast.makeText(getContext(), R.string.valid_price, Toast.LENGTH_SHORT).show();
         }
 
         Integer quantity = values.getAsInteger(BookEntry.COLUMN_PRODUCT_QUANTITY);
         if (quantity != null && quantity < 0) {
-            throw new IllegalArgumentException("Product requires valid quantity");
+            Toast.makeText(getContext(), R.string.valid_quantity, Toast.LENGTH_SHORT).show();
         }
 
         String supplierName = values.getAsString(BookEntry.COLUMN_SUPPLIER_NAME);
         if (supplierName == null || supplierName.isEmpty()) {
-            throw new IllegalArgumentException("Product requires a supplier name");
+            Toast.makeText(getContext(), R.string.valid_supplier_name, Toast.LENGTH_SHORT).show();
         }
 
         String supplierNumber = values.getAsString(BookEntry.COLUMN_SUPPLIER_NUMBER);
         if (supplierNumber == null || supplierName.isEmpty()) {
-            throw new IllegalArgumentException("Product requires a supplier phone number");
+            Toast.makeText(getContext(), R.string.valid_supplier_number, Toast.LENGTH_SHORT).show();
         }
 
         SQLiteDatabase database = mBookDbHelper.getWritableDatabase();

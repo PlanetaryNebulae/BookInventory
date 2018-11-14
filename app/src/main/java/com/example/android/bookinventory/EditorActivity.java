@@ -151,14 +151,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String supplierNameString = mSupplierNameEditText.getText().toString().trim();
         String supplierNumberString = mSupplierNumberEditText.getText().toString().trim();
 
-        //If all pet data is null, return without saving to database.
-        if (mCurrentBookUri == null &&
-                TextUtils.isEmpty(productNameString) && TextUtils.isEmpty(productPriceString) &&
-                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(supplierNameString) &&
-                TextUtils.isEmpty(supplierNumberString)) {
-            return;
-        }
-
         ContentValues values = new ContentValues();
         values.put(BookEntry.COLUMN_PRODUCT_NAME, productNameString);
         values.put(BookEntry.COLUMN_PRODUCT_PRICE, productPriceString);
@@ -203,9 +195,24 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_save:
-                saveBook();
-                finish();
-                return true;
+
+                String productNameString = mProductNameEditText.getText().toString().trim();
+                String productPriceString = mProductPriceEditText.getText().toString().trim();
+                String quantityString = mQuantityEditText.getText().toString().trim();
+                String supplierNameString = mSupplierNameEditText.getText().toString().trim();
+                String supplierNumberString = mSupplierNumberEditText.getText().toString().trim();
+
+                //If any data is null, send Toast message to tell user to finish entering data.
+                if (TextUtils.isEmpty(productNameString) || TextUtils.isEmpty(productPriceString) ||
+                        TextUtils.isEmpty(quantityString) || TextUtils.isEmpty(supplierNameString) ||
+                        TextUtils.isEmpty(supplierNumberString)) {
+                    Toast.makeText(this, R.string.finish_entering_data, Toast.LENGTH_SHORT).show();
+                    break;
+                } else {
+                    saveBook();
+                    finish();
+                    break;
+                }
 
             case R.id.action_delete:
                 showDeleteConfirmationDialog();

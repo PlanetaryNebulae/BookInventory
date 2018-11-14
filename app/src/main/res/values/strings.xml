@@ -43,5 +43,11 @@
     <string name="increase_quantity">+</string>
     <string name="call_supplier">Call</string>
     <string name="enter_quantity">Please enter quantity first.</string>
+    <string name="valid_product_name">Please enter a valid product name.</string>
+    <string name="valid_price">Please enter a valid price.</string>
+    <string name="valid_quantity">Please enter a valid quantity.</string>
+    <string name="valid_supplier_name">Please enter a valid supplier name.</string>
+    <string name="valid_supplier_number">Please enter a valid supplier number.</string>
+    <string name="finish_entering_data">Please finish entering data.</string>
 
 </resources>
