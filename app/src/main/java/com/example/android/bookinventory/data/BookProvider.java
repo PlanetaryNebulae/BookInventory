@@ -81,12 +81,12 @@ public class BookProvider extends ContentProvider {
     private Uri insertBook(Uri uri, ContentValues values) {
 
         String productName = values.getAsString(BookEntry.COLUMN_PRODUCT_NAME);
-        if (productName == null) {
+        if (productName == null || productName.isEmpty()) {
             throw new IllegalArgumentException("Product requires a name");
         }
 
         String productPrice = values.getAsString(BookEntry.COLUMN_PRODUCT_PRICE);
-        if (productPrice == null) {
+        if (productPrice == null || productPrice.isEmpty()) {
             throw new IllegalArgumentException("Product requires valid price");
         }
 
@@ -96,12 +96,12 @@ public class BookProvider extends ContentProvider {
         }
 
         String supplierName = values.getAsString(BookEntry.COLUMN_SUPPLIER_NAME);
-        if (supplierName == null) {
+        if (supplierName == null || supplierName.isEmpty()) {
             throw new IllegalArgumentException("Product requires a supplier name");
         }
 
         String supplierNumber = values.getAsString(BookEntry.COLUMN_SUPPLIER_NUMBER);
-        if (supplierNumber == null) {
+        if (supplierNumber == null || supplierName.isEmpty()) {
             throw new IllegalArgumentException("Product requires a supplier phone number");
         }
 
@@ -141,14 +141,14 @@ public class BookProvider extends ContentProvider {
 
         if (values.containsKey(BookEntry.COLUMN_PRODUCT_NAME)) {
             String productName = values.getAsString(BookEntry.COLUMN_PRODUCT_NAME);
-            if (productName == null) {
+            if (productName == null || productName.isEmpty()) {
                 throw new IllegalArgumentException("Product requires a name");
             }
         }
 
         if (values.containsKey(BookEntry.COLUMN_PRODUCT_PRICE)) {
             String productPrice = values.getAsString(BookEntry.COLUMN_PRODUCT_PRICE);
-            if (productPrice == null) {
+            if (productPrice == null || productPrice.isEmpty()) {
                 throw new IllegalArgumentException("Product requires valid price");
             }
         }
@@ -162,14 +162,14 @@ public class BookProvider extends ContentProvider {
 
         if (values.containsKey(BookEntry.COLUMN_SUPPLIER_NAME)) {
             String supplierName = values.getAsString(BookEntry.COLUMN_SUPPLIER_NAME);
-            if (supplierName == null) {
+            if (supplierName == null || supplierName.isEmpty()) {
                 throw new IllegalArgumentException("Product requires supplier name");
             }
         }
 
         if (values.containsKey(BookEntry.COLUMN_SUPPLIER_NUMBER)) {
             String supplierNumber = values.getAsString(BookEntry.COLUMN_SUPPLIER_NUMBER);
-            if (supplierNumber == null) {
+            if (supplierNumber == null || supplierNumber.isEmpty()) {
                 throw new IllegalArgumentException("Product requires supplier phone number");
             }
         }

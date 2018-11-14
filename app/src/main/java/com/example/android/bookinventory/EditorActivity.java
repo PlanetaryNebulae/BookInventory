@@ -91,13 +91,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mDecreaseQuantity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int updatedQuantity = Integer.parseInt(mQuantityEditText.getText().toString());
 
-                if (updatedQuantity > 0) {
+                if (TextUtils.isEmpty(mQuantityEditText.getText().toString())) {
+                    return;
+                } else if (!TextUtils.isEmpty(mQuantityEditText.getText().toString())) {
 
-                    updatedQuantity = updatedQuantity - 1;
-                    mQuantityEditText.setText(String.valueOf(updatedQuantity));
+                    int updatedQuantity = Integer.parseInt(mQuantityEditText.getText().toString());
 
+                    if (updatedQuantity >= 0) {
+                        updatedQuantity = updatedQuantity - 1;
+                        mQuantityEditText.setText(String.valueOf(updatedQuantity));
+                    }
                 }
             }
         });
@@ -106,14 +110,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mIncreaseQuantity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mQuantityEditText != null) {
+
+                if (TextUtils.isEmpty(mQuantityEditText.getText().toString())) {
+                    Toast.makeText(getBaseContext(), getString(R.string.enter_quantity), Toast.LENGTH_SHORT).show();
+                } else if (!TextUtils.isEmpty(mQuantityEditText.getText().toString())) {
+
                     int updatedQuantity = Integer.parseInt(mQuantityEditText.getText().toString());
-                    updatedQuantity = updatedQuantity + 1;
-                    mQuantityEditText.setText(String.valueOf(updatedQuantity));
-                } else {
-                    int quantity = 0;
-                    int updatedQuantity = quantity + 1;
-                    mQuantityEditText.setText(updatedQuantity);
+
+                    if (updatedQuantity >= 0) {
+                        updatedQuantity = updatedQuantity + 1;
+                        mQuantityEditText.setText(String.valueOf(updatedQuantity));
+                    }
                 }
             }
         });

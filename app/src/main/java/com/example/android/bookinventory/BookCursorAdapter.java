@@ -5,8 +5,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,18 +20,6 @@ import com.example.android.bookinventory.data.BookDbHelper;
 
 public class BookCursorAdapter extends CursorAdapter {
 
-    private static final int BOOKS = 100;
-    private static final int BOOK_ID = 101;
-    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-
-    static {
-        sUriMatcher.addURI(BookContract.CONTENT_AUTHORITY, BookContract.PATH_BOOKS, BOOKS);
-
-        sUriMatcher.addURI(BookContract.CONTENT_AUTHORITY, BookContract.PATH_BOOKS + "/#", BOOK_ID);
-    }
-
-    private BookDbHelper mBookDbHelper;
-
     public BookCursorAdapter(Context context, Cursor c) {
         super(context, c, 0 /* flags */);
     }
@@ -43,7 +31,7 @@ public class BookCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(final View view, Context context, Cursor cursor) {
+    public void bindView(final View view, final Context context, Cursor cursor) {
 
         //Individual views to modify.
         TextView productNameTextView = (TextView) view.findViewById(R.id.product_name);
@@ -65,6 +53,8 @@ public class BookCursorAdapter extends CursorAdapter {
         priceTextView.setText(price);
         quantityTextView.setText(quantity);
 
+        final int currentBookRowId = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+
         //When sale button is pressed, it reduces quantity by 1.
         Button saleButton = view.findViewById(R.id.sale_button);
         saleButton.setOnClickListener(new View.OnClickListener() {
@@ -76,19 +66,14 @@ public class BookCursorAdapter extends CursorAdapter {
                 if (updatedQuantity > 0) {
 
                     updatedQuantity = updatedQuantity - 1;
-                    quantityTextView.setText(String.valueOf(updatedQuantity));
 
+                    ContentValues values = new ContentValues();
+                    values.put(BookEntry.COLUMN_PRODUCT_QUANTITY, updatedQuantity);
+
+                    Uri newUri = ContentUris.withAppendedId(BookEntry.CONTENT_URI, currentBookRowId);
+                    context.getContentResolver().update(newUri, values, null, null);
                 }
 
-                //TODO: Finish whatever this is.
-                ContentValues values = new ContentValues();
-                values.put(BookEntry.COLUMN_PRODUCT_QUANTITY, quantity);
-
-                //Uri currentBookUri = ContentUris.withAppendedId(BookEntry.CONTENT_URI, id);
-
-                //intent.setData(currentBookUri);
-
-                //int rowsAffected = getContentResolver().update(updateUri, values,null, null);
             }
         });
     }

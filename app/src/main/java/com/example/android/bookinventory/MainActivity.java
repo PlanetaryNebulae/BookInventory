@@ -36,10 +36,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     BookCursorAdapter mCursorAdapter;
 
-    private BookDbHelper mDbHelper;
-
-    private EditText mQuantityEditText;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

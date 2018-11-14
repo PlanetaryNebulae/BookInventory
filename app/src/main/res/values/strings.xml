@@ -42,5 +42,6 @@
     <string name="decrease_quantity">-</string>
     <string name="increase_quantity">+</string>
     <string name="call_supplier">Call</string>
+    <string name="enter_quantity">Please enter quantity first.</string>
 
 </resources>
