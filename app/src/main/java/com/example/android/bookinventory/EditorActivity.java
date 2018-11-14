@@ -2,6 +2,7 @@ package com.example.android.bookinventory;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
@@ -20,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -41,6 +43,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mSupplierNameEditText;
 
     private EditText mSupplierNumberEditText;
+
+    private Button mDecreaseQuantity;
+
+    private Button mIncreaseQuantity;
+
+    private Button mCallSupplier;
 
     private boolean mBookHasChanged = false;
     //An onTouchListener that listens for touches on a view.
@@ -75,12 +83,58 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mQuantityEditText = (EditText) findViewById(R.id.edit_quantity_default);
         mSupplierNameEditText = (EditText) findViewById(R.id.edit_supplier_name);
         mSupplierNumberEditText = (EditText) findViewById(R.id.edit_supplier_phone_number);
+        mDecreaseQuantity = (Button) findViewById(R.id.decrease_quantity);
+        mIncreaseQuantity = (Button) findViewById(R.id.increase_quantity);
+        mCallSupplier = (Button) findViewById(R.id.call_supplier);
+
+        //Decreases quantity by 1.
+        mDecreaseQuantity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int updatedQuantity = Integer.parseInt(mQuantityEditText.getText().toString());
+
+                if (updatedQuantity > 0) {
+
+                    updatedQuantity = updatedQuantity - 1;
+                    mQuantityEditText.setText(String.valueOf(updatedQuantity));
+
+                }
+            }
+        });
+
+        //Increases quantity by 1.
+        mIncreaseQuantity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mQuantityEditText != null) {
+                    int updatedQuantity = Integer.parseInt(mQuantityEditText.getText().toString());
+                    updatedQuantity = updatedQuantity + 1;
+                    mQuantityEditText.setText(String.valueOf(updatedQuantity));
+                } else {
+                    int quantity = 0;
+                    int updatedQuantity = quantity + 1;
+                    mQuantityEditText.setText(updatedQuantity);
+                }
+            }
+        });
+
+        mCallSupplier.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+
+                intent.setData(Uri.parse("tel:" + mSupplierNumberEditText.getText().toString()));
+
+                startActivity(intent);
+            }
+        });
 
         mProductNameEditText.setOnTouchListener(mTouchListener);
         mProductPriceEditText.setOnTouchListener(mTouchListener);
         mQuantityEditText.setOnTouchListener(mTouchListener);
         mSupplierNameEditText.setOnTouchListener(mTouchListener);
         mSupplierNumberEditText.setOnTouchListener(mTouchListener);
+        mDecreaseQuantity.setOnTouchListener(mTouchListener);
     }
 
     private void saveBook() {
@@ -131,7 +185,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

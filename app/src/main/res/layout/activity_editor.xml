@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:id="@+id/edit_product_name"
-        android:hint="@string/product_name"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/product_name" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,16 +17,16 @@
         android:orientation="horizontal">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/product_currency"
-            android:text="@string/product_currency"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/product_currency" />
 
         <EditText
+            android:id="@+id/edit_product_price"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/edit_product_price"
-            android:hint="@string/product_price"/>
+            android:hint="@string/product_price" />
     </LinearLayout>
 
     <LinearLayout
@@ -35,28 +35,54 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/product_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/product_quantity"
-            android:text="@string/product_quantity"/>
+            android:text="@string/product_quantity" />
+
+        <Button
+            android:id="@+id/decrease_quantity"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="16dp"
+            android:text="@string/decrease_quantity" />
 
         <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/edit_quantity_default"
-            android:hint="@string/quantity_default"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/quantity_default" />
+
+        <Button
+            android:id="@+id/increase_quantity"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:text="@string/increase_quantity" />
 
     </LinearLayout>
 
     <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:id="@+id/edit_supplier_name"
-        android:hint="@string/supplier_name"/>
-
-    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/edit_supplier_phone_number"
-        android:hint="@string/supplier_phone_number"/>
+        android:hint="@string/supplier_name" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/call_supplier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/call_supplier" />
+
+        <EditText
+            android:id="@+id/edit_supplier_phone_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/supplier_phone_number" />
+
+    </LinearLayout>
+
 </LinearLayout>

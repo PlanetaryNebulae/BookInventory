@@ -39,5 +39,8 @@
     <string name="delete_all_dialog_msg">Delete entire inventory?</string>
     <string name="delete_books">Delete</string>
     <string name="cancel">Cancel</string>
+    <string name="decrease_quantity">-</string>
+    <string name="increase_quantity">+</string>
+    <string name="call_supplier">Call</string>
 
 </resources>

@@ -1,7 +1,12 @@
 package com.example.android.bookinventory;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +14,23 @@ import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import com.example.android.bookinventory.data.BookContract;
 import com.example.android.bookinventory.data.BookContract.BookEntry;
+import com.example.android.bookinventory.data.BookDbHelper;
 
 public class BookCursorAdapter extends CursorAdapter {
+
+    private static final int BOOKS = 100;
+    private static final int BOOK_ID = 101;
+    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+    static {
+        sUriMatcher.addURI(BookContract.CONTENT_AUTHORITY, BookContract.PATH_BOOKS, BOOKS);
+
+        sUriMatcher.addURI(BookContract.CONTENT_AUTHORITY, BookContract.PATH_BOOKS + "/#", BOOK_ID);
+    }
+
+    private BookDbHelper mBookDbHelper;
 
     public BookCursorAdapter(Context context, Cursor c) {
         super(context, c, 0 /* flags */);
@@ -29,7 +48,7 @@ public class BookCursorAdapter extends CursorAdapter {
         //Individual views to modify.
         TextView productNameTextView = (TextView) view.findViewById(R.id.product_name);
         TextView priceTextView = (TextView) view.findViewById(R.id.product_price);
-        TextView quantityTextView = (TextView) view.findViewById(R.id.quantity_default);
+        final TextView quantityTextView = (TextView) view.findViewById(R.id.quantity_default);
 
         //Columns of product attributes.
         int productNameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_PRODUCT_NAME);
@@ -53,14 +72,23 @@ public class BookCursorAdapter extends CursorAdapter {
             public void onClick(View view) {
 
                 int updatedQuantity = Integer.parseInt(quantity);
-                TextView quantityTextView = (TextView) view.findViewById(R.id.quantity_default);
 
                 if (updatedQuantity > 0) {
 
                     updatedQuantity = updatedQuantity - 1;
-                    quantityTextView.setText(Integer.toString(updatedQuantity));
+                    quantityTextView.setText(String.valueOf(updatedQuantity));
 
                 }
+
+                //TODO: Finish whatever this is.
+                ContentValues values = new ContentValues();
+                values.put(BookEntry.COLUMN_PRODUCT_QUANTITY, quantity);
+
+                //Uri currentBookUri = ContentUris.withAppendedId(BookEntry.CONTENT_URI, id);
+
+                //intent.setData(currentBookUri);
+
+                //int rowsAffected = getContentResolver().update(updateUri, values,null, null);
             }
         });
     }
